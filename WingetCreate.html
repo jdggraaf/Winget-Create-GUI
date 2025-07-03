@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive WinGet Manifest Creator Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Developer Blues -->
+    <!-- Application Structure Plan: The application is structured as a single-page interactive guide with a sticky top navigation, allowing users to jump between sections. It begins with a functional "Creator Tool" to provide immediate hands-on context. This is followed by an "Interactive Manifest Explorer" to break down the YAML structure, and then two separate, visually distinct "Workflow" sections (Public and Private) that use flowchart-style layouts. This structure was chosen to transform the linear text document into an engaging, task-oriented learning tool where users can either follow the flow sequentially or jump directly to the section most relevant to their needs, enhancing usability and knowledge retention. -->
+    <!-- Visualization & Content Choices: 
+        - Creator Tool: (Goal: Inform, Organize) Implemented as an HTML form with JS logic. This provides a direct, interactive experience of the process described in the report. (Method: HTML/JS/Tailwind)
+        - Manifest Explorer: (Goal: Inform, Organize) A two-column layout where hovering over code on the left highlights explanations on the right. This interactive link between syntax and meaning is more effective than static text. (Method: HTML/JS/Tailwind with hover events)
+        - Workflow Diagrams: (Goal: Inform, Change) Step-by-step process flows built with structured HTML and styled with Tailwind to create a clear visual hierarchy. This simplifies the complex submission processes. Click-to-copy functionality is added for commands. (Method: HTML/CSS/JS)
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .nav-link {
+            transition: color 0.2s, border-bottom-color 0.2s;
+        }
+        .nav-link.active {
+            color: #0284c7; /* sky-600 */
+            border-bottom-color: #0284c7;
+        }
+        .manifest-highlight {
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .explanation-highlight {
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .highlighted {
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .step-connector::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            height: 2rem;
+            border-left: 2px dashed #94a3b8; /* slate-400 */
+        }
+        .step-connector-horizontal::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 2rem;
+            border-top: 2px dashed #94a3b8; /* slate-400 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-lg text-sky-600">Winget Guide</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#creator-tool" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Creator Tool</a>
+                        <a href="#manifest-explorer" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Manifest Explorer</a>
+                        <a href="#public-workflow" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Public Workflow</a>
+                        <a href="#private-workflow" class="nav-link text-slate-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Private Workflow</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Section 1: Interactive Creator Tool -->
+        <section id="creator-tool" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">WinGet Manifest Creator</h1>
+                <p class="mt-4 text-lg text-slate-600">This tool provides a hands-on experience for creating WinGet manifest files. Follow the steps below to generate a YAML manifest for any software installer, which you can then use in a public or private repository.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Form Area -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-medium leading-6 text-slate-900">Step 1: Fetch from URL</h3>
+                            <p class="mt-1 text-sm text-slate-500">Enter the direct download URL for an installer (.exe, .msi, etc.).</p>
+                            <div class="mt-4 flex rounded-md shadow-sm">
+                                <input type="text" id="installerUrl" class="block w-full rounded-none rounded-l-md border-slate-300 focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="https://example.com/installer.exe">
+                                <button id="fetchButton" class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                    <span>Fetch</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-medium leading-6 text-slate-900">Step 2: Review & Edit Details</h3>
+                            <p class="mt-1 text-sm text-slate-500">Correct any auto-filled details and provide the rest of the required information.</p>
+                            <div class="mt-4 grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-6">
+                                <div class="sm:col-span-6">
+                                    <label for="packageId" class="block text-sm font-medium text-slate-700">Package Identifier</label>
+                                    <input type="text" id="packageId" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="Publisher.AppName">
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <label for="packageVersion" class="block text-sm font-medium text-slate-700">Version</label>
+                                    <input type="text" id="packageVersion" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="1.0.0">
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <label for="publisher" class="block text-sm font-medium text-slate-700">Publisher</label>
+                                    <input type="text" id="publisher" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="My Company">
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label for="appName" class="block text-sm font-medium text-slate-700">App Name</label>
+                                    <input type="text" id="appName" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="My Awesome App">
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <label for="license" class="block text-sm font-medium text-slate-700">License</label>
+                                    <input type="text" id="license" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm" placeholder="MIT">
+                                </div>
+                                <div class="sm:col-span-3">
+                                    <label for="installerType" class="block text-sm font-medium text-slate-700">Installer Type</label>
+                                    <select id="installerType" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm">
+                                        <option>inno</option>
+                                        <option>msi</option>
+                                        <option>nullsoft</option>
+                                        <option>exe</option>
+                                        <option>zip</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-medium leading-6 text-slate-900">Step 3: Generate Manifest</h3>
+                            <p class="mt-1 text-sm text-slate-500">Click to create the YAML manifest file.</p>
+                            <div class="mt-4 flex space-x-3">
+                                <button id="generateButton" class="inline-flex justify-center rounded-md border border-transparent bg-sky-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">Generate</button>
+                                <button id="resetButton" class="inline-flex justify-center rounded-md border border-slate-300 bg-white py-2 px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Area -->
+                <div id="manifestOutputContainer" class="bg-slate-800 p-8 rounded-2xl shadow-lg relative h-full min-h-[500px] flex flex-col justify-center">
+                    <pre class="whitespace-pre-wrap text-slate-300 text-sm font-mono overflow-auto h-full"><code id="manifestOutput">// Your generated manifest will appear here...</code></pre>
+                    <button id="copyButton" class="hidden absolute top-4 right-4 bg-slate-700 text-slate-300 hover:bg-slate-600 rounded-md p-2 text-sm">
+                        <span id="copyButtonText">Copy</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Interactive Manifest Explorer -->
+        <section id="manifest-explorer" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Interactive Manifest Explorer</h2>
+                <p class="mt-4 text-lg text-slate-600">A WinGet manifest is a YAML file that contains metadata about an application. Hover over the different fields in the sample manifest below to learn what each one does. This helps you understand the file you just generated.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700">
+                    <pre class="font-mono text-sm text-slate-300"><code id="manifest-sample">
+<span id="field-PackageIdentifier" class="manifest-highlight rounded p-1">PackageIdentifier:</span> MyCompany.MyApp
+<span id="field-PackageVersion" class="manifest-highlight rounded p-1">PackageVersion:</span> 1.2.3
+<span id="field-PackageLocale" class="manifest-highlight rounded p-1">PackageLocale:</span> en-US
+<span id="field-Publisher" class="manifest-highlight rounded p-1">Publisher:</span> MyCompany
+<span id="field-PackageName" class="manifest-highlight rounded p-1">PackageName:</span> My Awesome App
+<span id="field-License" class="manifest-highlight rounded p-1">License:</span> MIT License
+<span id="field-ShortDescription" class="manifest-highlight rounded p-1">ShortDescription:</span> A brief description of the app.
+<span id="field-ManifestType" class="manifest-highlight rounded p-1">ManifestType:</span> version
+<span id="field-ManifestVersion" class="manifest-highlight rounded p-1">ManifestVersion:</span> 1.0.0
+<span id="field-Installers" class="manifest-highlight rounded p-1">Installers:</span>
+  - <span id="field-Architecture" class="manifest-highlight rounded p-1">Architecture:</span> x64
+    <span id="field-InstallerType" class="manifest-highlight rounded p-1">InstallerType:</span> exe
+    <span id="field-InstallerUrl" class="manifest-highlight rounded p-1">InstallerUrl:</span> https://.../installer.exe
+    <span id="field-InstallerSha256" class="manifest-highlight rounded p-1">InstallerSha256:</span> E3B...
+    <span id="field-InstallerSwitches" class="manifest-highlight rounded p-1">InstallerSwitches:</span>
+      <span id="field-Silent" class="manifest-highlight rounded p-1">Silent:</span> /S
+      <span id="field-SilentWithProgress" class="manifest-highlight rounded p-1">SilentWithProgress:</span> /SP
+                    </code></pre>
+                </div>
+                <div id="explanations" class="space-y-3">
+                    <!-- Explanations will be populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Public Workflow -->
+        <section id="public-workflow" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Public Repository Workflow</h2>
+                <p class="mt-4 text-lg text-slate-600">To make your application available to everyone, you need to submit your manifest to the public `winget-pkgs` repository on GitHub. This process involves a few key steps to ensure quality and security.</p>
+            </div>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
+                <!-- Step 1 -->
+                <div class="flex flex-col items-center relative step-connector-horizontal">
+                    <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">1</div>
+                    <h4 class="mt-4 font-semibold">Calculate SHA-256</h4>
+                    <p class="text-sm text-slate-500 max-w-xs">Download the installer and use PowerShell to get its unique security hash.</p>
+                    <div class="mt-2 p-2 bg-slate-100 rounded-md w-full">
+                        <code class="text-xs text-slate-700">Get-FileHash ...</code>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="flex flex-col items-center relative step-connector-horizontal">
+                    <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">2</div>
+                    <h4 class="mt-4 font-semibold">Fork Repository</h4>
+                    <p class="text-sm text-slate-500 max-w-xs">Create your own copy of the official `microsoft/winget-pkgs` repository on GitHub.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="flex flex-col items-center relative step-connector-horizontal">
+                    <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">3</div>
+                    <h4 class="mt-4 font-semibold">Create Folders & Add File</h4>
+                    <p class="text-sm text-slate-500 max-w-xs">In your fork, create the specific folder structure based on the package ID and add your manifest file.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="flex flex-col items-center">
+                    <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">4</div>
+                    <h4 class="mt-4 font-semibold">Create Pull Request</h4>
+                    <p class="text-sm text-slate-500 max-w-xs">Submit your changes back to the main repository. Automated checks will run before a maintainer reviews it.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Private Workflow -->
+        <section id="private-workflow" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Private Repository Workflow</h2>
+                <p class="mt-4 text-lg text-slate-600">For internal company software, you can host your own repository. This gives you full control over distribution while still using the power of WinGet. This is a two-part process: server setup and client configuration.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Server Side -->
+                <div>
+                    <h3 class="font-bold text-xl text-center mb-6">Part 1: Host Your Files (Server Side)</h3>
+                    <div class="flex flex-col items-center gap-8 text-center">
+                        <div class="flex flex-col items-center relative step-connector">
+                            <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">A</div>
+                            <h4 class="mt-4 font-semibold">Host Installers</h4>
+                            <p class="text-sm text-slate-500 max-w-xs">Make your installer files (.exe, .msi) available at a stable, direct download URL.</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">B</div>
+                            <h4 class="mt-4 font-semibold">Host Manifests</h4>
+                            <p class="text-sm text-slate-500 max-w-xs">On the same host, place your completed manifest files in the standard folder structure.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Client Side -->
+                <div>
+                     <h3 class="font-bold text-xl text-center mb-6">Part 2: Configure WinGet (Client Side)</h3>
+                     <div class="flex flex-col items-center gap-8 text-center">
+                        <div class="flex flex-col items-center relative step-connector">
+                            <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">C</div>
+                            <h4 class="mt-4 font-semibold">Add Your Source</h4>
+                            <p class="text-sm text-slate-500 max-w-xs">On each user's machine, run a single command to tell WinGet where to find your repository.</p>
+                             <div class="mt-2 p-2 bg-slate-100 rounded-md w-full relative">
+                                <code id="sourceCommand" class="text-xs text-slate-700">winget source add --name "MySource" --arg "https://..."</code>
+                                <button onclick="copyCommand('sourceCommand')" class="absolute top-1 right-1 bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded hover:bg-slate-300">Copy</button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="bg-white rounded-full h-16 w-16 flex items-center justify-center text-2xl font-bold text-sky-600 border-4 border-sky-200">D</div>
+                            <h4 class="mt-4 font-semibold">Install Your App</h4>
+                            <p class="text-sm text-slate-500 max-w-xs">Users can now search for and install your internal apps using standard WinGet commands.</p>
+                             <div class="mt-2 p-2 bg-slate-100 rounded-md w-full relative">
+                                <code id="installCommand" class="text-xs text-slate-700">winget install MyCompany.MyApp</code>
+                                <button onclick="copyCommand('installCommand')" class="absolute top-1 right-1 bg-slate-200 text-slate-600 text-xs px-2 py-1 rounded hover:bg-slate-300">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fetchButton = document.getElementById('fetchButton');
+            const generateButton = document.getElementById('generateButton');
+            const resetButton = document.getElementById('resetButton');
+            const copyButton = document.getElementById('copyButton');
+
+            const installerUrlInput = document.getElementById('installerUrl');
+            const packageIdInput = document.getElementById('packageId');
+            const packageVersionInput = document.getElementById('packageVersion');
+            const publisherInput = document.getElementById('publisher');
+            const appNameInput = document.getElementById('appName');
+            const licenseInput = document.getElementById('license');
+            const installerTypeSelect = document.getElementById('installerType');
+
+            const manifestOutput = document.getElementById('manifestOutput');
+            const manifestOutputContainer = document.getElementById('manifestOutputContainer');
+
+            fetchButton.addEventListener('click', () => {
+                const url = installerUrlInput.value;
+                if (!url) {
+                    alert('Please enter an installer URL.');
+                    return;
+                }
+                
+                // Simulate fetching details from URL
+                try {
+                    const path = new URL(url).pathname.split('/');
+                    const filename = path[path.length - 1].replace(/\.exe|\.msi/i, '');
+                    const parts = filename.split(/[-_v]/);
+                    
+                    let name = parts[0] || 'AppName';
+                    let version = parts.find(p => p.match(/\d+\.\d+/)) || '1.0.0';
+
+                    appNameInput.value = name.charAt(0).toUpperCase() + name.slice(1);
+                    packageVersionInput.value = version;
+                    publisherInput.value = 'Publisher';
+                    packageIdInput.value = `Publisher.${name}`;
+
+                } catch (e) {
+                    alert('Invalid URL or could not parse details.');
+                }
+            });
+
+            generateButton.addEventListener('click', () => {
+                if (!packageIdInput.value || !packageVersionInput.value || !publisherInput.value || !appNameInput.value || !licenseInput.value) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                const manifest = `PackageIdentifier: ${packageIdInput.value}
+PackageVersion: ${packageVersionInput.value}
+PackageLocale: en-US
+Publisher: ${publisherInput.value}
+PackageName: ${appNameInput.value}
+License: ${licenseInput.value}
+ShortDescription: A brief description of the application.
+ManifestType: version
+ManifestVersion: 1.0.0
+Installers:
+  - Architecture: x64
+    InstallerType: ${installerTypeSelect.value}
+    InstallerUrl: ${installerUrlInput.value}
+    InstallerSha256: # Must be calculated after downloading the installer.
+`;
+                manifestOutput.textContent = manifest;
+                copyButton.classList.remove('hidden');
+                manifestOutputContainer.classList.remove('justify-center');
+            });
+
+            resetButton.addEventListener('click', () => {
+                const inputs = [installerUrlInput, packageIdInput, packageVersionInput, publisherInput, appNameInput, licenseInput];
+                inputs.forEach(input => input.value = '');
+                installerTypeSelect.selectedIndex = 0;
+                manifestOutput.textContent = '// Your generated manifest will appear here...';
+                copyButton.classList.add('hidden');
+                manifestOutputContainer.classList.add('justify-center');
+            });
+
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(manifestOutput.textContent).then(() => {
+                    const copyButtonText = document.getElementById('copyButtonText');
+                    copyButtonText.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyButtonText.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+
+            // Interactive Manifest Explorer Logic
+            const explanationsData = {
+                'PackageIdentifier': { title: 'Package Identifier', text: 'The unique ID for the package, in `Publisher.AppName` format. This is how WinGet identifies the software.' },
+                'PackageVersion': { title: 'Package Version', text: 'The specific version of the software, ideally matching the version displayed in "Apps & Features".' },
+                'PackageLocale': { title: 'Package Locale', text: 'The language code for the manifest metadata (e.g., en-US, de-DE).' },
+                'Publisher': { title: 'Publisher', text: 'The name of the company or individual who created the software.' },
+                'PackageName': { title: 'Package Name', text: 'The common, user-friendly name of the application.' },
+                'License': { title: 'License', text: 'The name of the software license (e.g., MIT, GPLv3, Proprietary).' },
+                'ShortDescription': { title: 'Short Description', text: 'A brief, one-sentence summary of what the application does.' },
+                'ManifestType': { title: 'Manifest Type', text: 'Defines the type of manifest file. `version` is used for a single-file manifest.' },
+                'ManifestVersion': { title: 'Manifest Version', text: 'The version of the manifest specification being used.' },
+                'Installers': { title: 'Installers', text: 'An array containing information about one or more installer files.' },
+                'Architecture': { title: 'Architecture', text: 'The processor architecture the installer targets (e.g., x64, x86).' },
+                'InstallerType': { title: 'Installer Type', text: 'The type of installer technology used (e.g., inno, msi, exe).' },
+                'InstallerUrl': { title: 'Installer URL', text: 'The direct, permanent download link for the installer file.' },
+                'InstallerSha256': { title: 'Installer SHA256', text: 'The SHA-256 hash of the installer file. This is a critical security check to ensure file integrity.' },
+                'InstallerSwitches': { title: 'Installer Switches', text: 'Optional command-line flags to control the installation process.' },
+                'Silent': { title: 'Silent Switch', text: 'The command-line switch for a completely silent installation.' },
+                'SilentWithProgress': { title: 'Silent With Progress Switch', text: 'The switch for a silent installation that still shows a progress bar.' },
+            };
+            
+            const explanationsContainer = document.getElementById('explanations');
+            const manifestCode = document.getElementById('manifest-sample');
+            
+            Object.entries(explanationsData).forEach(([id, data]) => {
+                const div = document.createElement('div');
+                div.id = `explanation-${id}`;
+                div.className = 'p-4 bg-white rounded-lg shadow-sm border border-slate-200 explanation-highlight';
+                div.innerHTML = `<h5 class="font-semibold text-slate-800">${data.title}</h5><p class="text-sm text-slate-600">${data.text}</p>`;
+                explanationsContainer.appendChild(div);
+
+                const fieldSpan = document.getElementById(`field-${id}`);
+                if (fieldSpan) {
+                    fieldSpan.addEventListener('mouseover', () => {
+                        document.querySelectorAll('.manifest-highlight, .explanation-highlight').forEach(el => el.classList.remove('highlighted'));
+                        fieldSpan.classList.add('highlighted');
+                        div.classList.add('highlighted');
+                        div.style.transform = 'scale(1.02)';
+                    });
+                     fieldSpan.addEventListener('mouseout', () => {
+                        fieldSpan.classList.remove('highlighted');
+                        div.classList.remove('highlighted');
+                        div.style.transform = 'scale(1)';
+                    });
+                }
+            });
+
+            // Nav link observer
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+
+        // Global copy function for commands
+        function copyCommand(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const button = codeElement.nextElementSibling;
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Copied!';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
