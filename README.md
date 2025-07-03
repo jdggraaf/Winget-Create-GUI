@@ -9,8 +9,6 @@ Transform the complex process of WinGet manifest creation into a visual, hands-o
 
 [🚀 Try the Live Demo](https://jdggraaf.github.io/Winget-Create-GUI/)
 
-![App Screenshot](https://via.placeholder.com/800x500/0284c7/ffffff?text=Interactive+GUI+Preview)
-
 ---
 
 ## ✨ Key Features
