@@ -1,33 +1,51 @@
 # Winget-Create-GUI
 
-Interactive WinGet Manifest Creator Guide
-This project transforms the standard WinGet documentation into a fully interactive, single-page web application to provide a hands-on learning experience. It's self-contained in a single HTML file, requiring no complex build steps or dependencies.
+![GitHub stars](https://img.shields.io/github/stars/jdggraaf/Winget-Create-GUI)
+![GitHub license](https://img.shields.io/github/license/jdggraaf/Winget-Create-GUI)
 
-Live Demo
-[Click here to try](https://jdggraaf.github.io/Winget-Create-GUI/)
+## Interactive WinGet Manifest Creation Made Easy
 
-Key Features
-Interactive Manifest Creator: A functional tool that simulates fetching details from an installer URL and allows users to generate a valid YAML manifest on the fly.
+Transform the complex process of WinGet manifest creation into a visual, hands-on experience. This single-page web application provides a guided, interactive approach to creating and understanding software manifests for the Windows Package Manager.
 
-Manifest Explorer: An interactive code viewer where users can hover over fields in a sample manifest to get detailed explanations.
+[🚀 Try the Live Demo](https://jdggraaf.github.io/Winget-Create-GUI/)
 
-Visual Workflows: Clear, step-by-step diagrams for both public and private repository submission processes.
+![App Screenshot](https://via.placeholder.com/800x500/0284c7/ffffff?text=Interactive+GUI+Preview)
 
-Responsive Design: A clean, modern UI built with Tailwind CSS that works seamlessly across all devices.
+---
 
-Zero-Dependency: The entire application runs from a single index.html file with no installation required.
+## ✨ Key Features
 
-Technology Stack
-HTML: For the core structure and content.
+- **🛠️ Interactive Manifest Creator**  
+  Build valid YAML manifests through an intuitive form with auto-filling capabilities and real-time validation.
 
-Tailwind CSS: For all styling and layout, loaded via a CDN.
+- **🔍 Manifest Explorer**  
+  Hover over YAML fields to see contextual explanations and requirements for each manifest component.
 
-Vanilla JavaScript: For all interactivity and DOM manipulation.
+- **📊 Visual Workflows**  
+  Follow step-by-step diagrams for both public (winget-pkgs) and private repository submission processes.
 
-Alternatively, clone the repository and open the file:
+- **📱 Fully Responsive**  
+  Modern, mobile-friendly UI built with Tailwind CSS that works on any device.
 
-git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name
-# Open index.html in your browser
+- **📦 Zero Dependencies**  
+  Single HTML file that runs immediately - no installation or build steps required.
 
+---
 
+## 🛠️ Technology Stack
+
+| Technology       | Purpose                          |
+|------------------|----------------------------------|
+| HTML5            | Core structure and content      |
+| Tailwind CSS     | Responsive styling and layout   |
+| Vanilla JS       | DOM manipulation and interactivity |
+| GitHub Pages     | Hosting and deployment          |
+
+---
+
+## 📥 Installation
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/jdggraaf/Winget-Create-GUI.git
+   cd Winget-Create-GUI
