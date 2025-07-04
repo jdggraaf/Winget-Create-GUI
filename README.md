@@ -41,9 +41,4 @@ Transform the complex process of WinGet manifest creation into a visual, hands-o
 
 ---
 
-## 📥 Installation
-
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/jdggraaf/Winget-Create-GUI.git
-   cd Winget-Create-GUI
+If you want to run it locally juat open de HTML file within yor browser.
