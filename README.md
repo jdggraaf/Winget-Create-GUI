@@ -7,7 +7,7 @@
 
 Transform the complex process of WinGet manifest creation into a visual, hands-on experience. This single-page web application provides a guided, interactive approach to creating and understanding software manifests for the Windows Package Manager.
 
-[🚀 Try the Live Demo](https://jdggraaf.github.io/Winget-Create-GUI/)
+[🚀 Try the Live Demo]([https://jdggraaf.github.io/Winget-Create-GUI/](https://jdggraaf.github.io/Winget-Package-Creation-GUI/))
 
 ---
 
